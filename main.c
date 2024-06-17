@@ -14,6 +14,7 @@ int screenSetup();
 int mapSetup();
 Player* playerSetup();
 int handleInput(int input, Player* user);
+int playerMove(int y, int x, Player* user);
 
 // main function
 
@@ -93,8 +94,7 @@ Player* playerSetup()
     newPlayer->yPosition = 14;
     newPlayer->health = 20;
 
-    mvprintw(newPlayer->yPosition, newPlayer->xPosition, "@");
-    move(newPlayer->yPosition, newPlayer->xPosition);
+    playerMove(newPlayer->yPosition, newPlayer->xPosition, newPlayer);
 
     return newPlayer;
 }
@@ -106,23 +106,41 @@ int handleInput(int input, Player* user)
         // move up
         case 'w':
         case 'W':
+            playerMove(user->yPosition - 1, user->xPosition, user);
             break;
         
         // move down
         case 's':
         case 'S':
+            playerMove(user->yPosition + 1, user->xPosition, user);
             break;
 
         // move left
         case 'a':
         case 'A':
+            playerMove(user->yPosition, user->xPosition - 1, user);
             break;
         
         // move right
         case 'd':
         case 'D':
+            playerMove(user->yPosition, user->xPosition + 1, user);
+            break;
+
+        default:
             break;
     }
 
     return 0;
+}
+
+int playerMove(int y, int x, Player* user)
+{
+    mvprintw(user->yPosition, user->xPosition, ".");
+
+    user->xPosition = x;
+    user->yPosition = y;
+
+    mvprintw(user->yPosition, user->xPosition, "@");
+    move(user->yPosition, user->xPosition);
 }
