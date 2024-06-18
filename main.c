@@ -15,6 +15,7 @@ int mapSetup();
 Player* playerSetup();
 int handleInput(int input, Player* user);
 int playerMove(int y, int x, Player* user);
+int checkPosition(int newY, int newX, Player* user);
 
 // main function
 
@@ -101,35 +102,44 @@ Player* playerSetup()
 
 int handleInput(int input, Player* user)
 {
+    int newY;
+    int newX;
+
     switch (input)
     {
         // move up
         case 'w':
         case 'W':
-            playerMove(user->yPosition - 1, user->xPosition, user);
+            newY = user->yPosition - 1;
+            newX = user->xPosition;
             break;
         
         // move down
         case 's':
         case 'S':
-            playerMove(user->yPosition + 1, user->xPosition, user);
+            newY = user->yPosition + 1;
+            newX = user->xPosition;
             break;
 
         // move left
         case 'a':
         case 'A':
-            playerMove(user->yPosition, user->xPosition - 1, user);
+            newY = user->yPosition;
+            newX = user->xPosition - 1;
             break;
         
         // move right
         case 'd':
         case 'D':
-            playerMove(user->yPosition, user->xPosition + 1, user);
+            newY = user->yPosition;
+            newX = user->xPosition + 1;
             break;
 
         default:
             break;
     }
+
+    checkPosition(newY, newX, user);
 
     return 0;
 }
@@ -143,4 +153,22 @@ int playerMove(int y, int x, Player* user)
 
     mvprintw(user->yPosition, user->xPosition, "@");
     move(user->yPosition, user->xPosition);
+}
+
+int checkPosition(int newY, int newX, Player* user)
+{
+    int space;
+    // mvinch returns the character in the position given
+    switch (mvinch(newY, newX))
+    {
+        // if the next block is a free space, move
+        case '.':
+            playerMove(newY, newX, user);
+            break;
+        default:
+            // move the cursor back, as the cursor would otherwise move to the
+            // new position
+            move(user->yPosition, user->xPosition);
+            break;
+    }
 }
