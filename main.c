@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+#include <time.h>   // Random numbers
+
 typedef struct Position
 {
     int x;
@@ -15,6 +17,9 @@ typedef struct Room
 
     int height;
     int width;
+
+    // Position doors[4];
+    Position** doors;
 
     // Monster** monsters;
     // Item ** items;
@@ -77,6 +82,9 @@ int screenSetup()
     noecho();
     refresh();
 
+    // seeds the random number generator with the current time
+    srand(time(NULL));
+
     // tutorial dude says that 1 is good, 0 is error
     return 1;
 }
@@ -107,6 +115,28 @@ Room* createRoom(int x, int y, int h, int w)
     newRoom->position.y = y;
     newRoom->height = h;
     newRoom->width = w;
+
+    newRoom->doors = malloc(sizeof(Position)*4);
+
+    // top door
+    newRoom->doors[0] = malloc(sizeof(Position));
+    newRoom->doors[0]->x = rand() % (w - 2) + newRoom->position.x + 1;
+    newRoom->doors[0]->y = newRoom->position.y;    // or newRoom->position.y
+
+    // bottom door
+    newRoom->doors[1] = malloc(sizeof(Position));
+    newRoom->doors[1]->x = rand() % (w - 2) + newRoom->position.x + 1;
+    newRoom->doors[1]->y = newRoom->position.y + newRoom->height - 1;
+
+    // left door
+    newRoom->doors[2] = malloc(sizeof(Position));
+    newRoom->doors[2]->x = newRoom->position.x;
+    newRoom->doors[2]->y = rand() % (h - 2) + newRoom->position.y + 1;
+
+    // right door
+    newRoom->doors[3] = malloc(sizeof(Position));
+    newRoom->doors[3]->x = newRoom->position.x + newRoom->width - 1;
+    newRoom->doors[3]->y = rand() % (h - 2) + newRoom->position.y + 1;
 
     return newRoom;
 }
@@ -148,6 +178,12 @@ int drawRoom(Room* room)
             mvprintw(y, x, ".");
         }
     }
+
+    // draw doors
+    mvprintw(room->doors[0]->y, room->doors[0]->x, "+");  // top
+    mvprintw(room->doors[1]->y, room->doors[1]->x, "+");  // bottom
+    mvprintw(room->doors[2]->y, room->doors[2]->x, "+");  // left
+    mvprintw(room->doors[3]->y, room->doors[3]->x, "+");  // right
 
     // returns 1 on success
     return 1;
