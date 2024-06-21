@@ -44,6 +44,7 @@ int checkPosition(int newY, int newX, Player* user);
 // room functions
 Room* createRoom(int x, int y, int h, int w);
 int drawRoom(Room* room);
+int connectDoors(Position* doorOne, Position* doorTwo);
 
 // main function
 
@@ -103,6 +104,9 @@ Room** mapSetup()
     rooms[2] = createRoom(40, 10, 6, 12);
     drawRoom(rooms[2]);
 
+    connectDoors(rooms[0]->doors[3], rooms[2]->doors[1]);
+    // connectDoors(rooms[2]->doors[0], rooms[1]->doors[2]);
+
     return rooms;
 }
 
@@ -123,15 +127,15 @@ Room* createRoom(int x, int y, int h, int w)
     newRoom->doors[0]->x = rand() % (w - 2) + newRoom->position.x + 1;
     newRoom->doors[0]->y = newRoom->position.y;    // or newRoom->position.y
 
-    // bottom door
-    newRoom->doors[1] = malloc(sizeof(Position));
-    newRoom->doors[1]->x = rand() % (w - 2) + newRoom->position.x + 1;
-    newRoom->doors[1]->y = newRoom->position.y + newRoom->height - 1;
-
     // left door
+    newRoom->doors[1] = malloc(sizeof(Position));
+    newRoom->doors[1]->x = newRoom->position.x;
+    newRoom->doors[1]->y = rand() % (h - 2) + newRoom->position.y + 1;
+
+    // bottom door
     newRoom->doors[2] = malloc(sizeof(Position));
-    newRoom->doors[2]->x = newRoom->position.x;
-    newRoom->doors[2]->y = rand() % (h - 2) + newRoom->position.y + 1;
+    newRoom->doors[2]->x = rand() % (w - 2) + newRoom->position.x + 1;
+    newRoom->doors[2]->y = newRoom->position.y + newRoom->height - 1;
 
     // right door
     newRoom->doors[3] = malloc(sizeof(Position));
@@ -187,6 +191,67 @@ int drawRoom(Room* room)
 
     // returns 1 on success
     return 1;
+}
+
+int connectDoors(Position* doorOne, Position* doorTwo)
+{
+    Position temp;
+
+    temp.x = doorOne->x;
+    temp.y = doorOne->y;
+
+    while (1)   // always be true and looping
+    {
+        // move in a random direction
+        // ask if it moves closer to the destination
+        // if so, ask it if the space is empty
+
+        // step left
+        if
+        (
+            abs((temp.x - 1) - doorTwo->x) < abs(temp.x - doorTwo->x)
+            && (mvinch(temp.y, temp.x - 1) == ' ')
+        )
+        {
+            mvprintw(temp.y, temp.x - 1, "#");
+            temp.x -= 1;
+        }
+        else if // step right
+        (
+            abs((temp.x + 1) - doorTwo->x) < abs(temp.x - doorTwo->x)
+            && (mvinch(temp.y, temp.x + 1) == ' ')
+        )
+        {
+            mvprintw(temp.y, temp.x + 1, "#");
+            temp.x += 1;
+        }
+        else if // step down
+        (
+            abs((temp.y + 1) - doorTwo->y) < abs(temp.y - doorTwo->y)
+            && (mvinch(temp.y + 1, temp.x) == ' ')
+        )
+        {
+            mvprintw(temp.y + 1, temp.x, "#");
+            temp.y += 1;
+        }
+        else if // step up
+        (
+            abs((temp.y - 1) - doorTwo->y) < abs(temp.y - doorTwo->y)
+            && (mvinch(temp.y - 1, temp.x) == ' ')
+        )
+        {
+            mvprintw(temp.y - 1, temp.x, "#");
+            temp.y -= 1;
+        }
+        else // if we get stuck
+        {
+            return 0;
+        }
+
+        getch();
+    }
+
+    return 1;   // on success
 }
 
 Player* playerSetup()
@@ -266,6 +331,8 @@ int checkPosition(int newY, int newX, Player* user)
     {
         // if the next block is a free space, move
         case '.':
+        case '+':
+        case '#':
             playerMove(newY, newX, user);
             break;
         default:
@@ -275,3 +342,4 @@ int checkPosition(int newY, int newX, Player* user)
             break;
     }
 }
+
