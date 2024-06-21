@@ -105,7 +105,7 @@ Room** mapSetup()
     drawRoom(rooms[2]);
 
     connectDoors(rooms[0]->doors[3], rooms[2]->doors[1]);
-    // connectDoors(rooms[2]->doors[0], rooms[1]->doors[2]);
+    connectDoors(rooms[1]->doors[2], rooms[0]->doors[0]);
 
     return rooms;
 }
@@ -196,9 +196,14 @@ int drawRoom(Room* room)
 int connectDoors(Position* doorOne, Position* doorTwo)
 {
     Position temp;
+    Position previous;
+
+    int count = 0;
 
     temp.x = doorOne->x;
     temp.y = doorOne->y;
+
+    previous = temp;
 
     while (1)   // always be true and looping
     {
@@ -213,7 +218,8 @@ int connectDoors(Position* doorOne, Position* doorTwo)
             && (mvinch(temp.y, temp.x - 1) == ' ')
         )
         {
-            mvprintw(temp.y, temp.x - 1, "#");
+            // mvprintw(temp.y, temp.x - 1, "#");
+            previous.x = temp.x;
             temp.x -= 1;
         }
         else if // step right
@@ -222,7 +228,8 @@ int connectDoors(Position* doorOne, Position* doorTwo)
             && (mvinch(temp.y, temp.x + 1) == ' ')
         )
         {
-            mvprintw(temp.y, temp.x + 1, "#");
+            // mvprintw(temp.y, temp.x + 1, "#");
+            previous.x = temp.x;
             temp.x += 1;
         }
         else if // step down
@@ -231,7 +238,8 @@ int connectDoors(Position* doorOne, Position* doorTwo)
             && (mvinch(temp.y + 1, temp.x) == ' ')
         )
         {
-            mvprintw(temp.y + 1, temp.x, "#");
+            // mvprintw(temp.y + 1, temp.x, "#");
+            previous.y = temp.y;
             temp.y += 1;
         }
         else if // step up
@@ -240,13 +248,23 @@ int connectDoors(Position* doorOne, Position* doorTwo)
             && (mvinch(temp.y - 1, temp.x) == ' ')
         )
         {
-            mvprintw(temp.y - 1, temp.x, "#");
+            // mvprintw(temp.y - 1, temp.x, "#");
+            previous.y = temp.y;
             temp.y -= 1;
         }
         else // if we get stuck
         {
+            if (count == 0)
+            {
+                temp = previous;
+                count++;
+                continue;
+            }
+
             return 0;
         }
+
+        mvprintw(temp.y, temp.x, "#");
 
         getch();
     }
@@ -342,4 +360,3 @@ int checkPosition(int newY, int newX, Player* user)
             break;
     }
 }
-
